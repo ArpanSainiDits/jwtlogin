@@ -1,0 +1,9 @@
+Todo 
+1. Login Api update - (2 hrs)
+2. Login Project Documentation - (3 hrs)
+
+
+
+EOD - 
+1. login api update - Done 
+2. Login Project Documentation - In progress
