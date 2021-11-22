@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
-
+from django.contrib.auth.password_validation import validate_password
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -70,19 +70,19 @@ class UserListSerializer(serializers.ModelSerializer):
         
         
 class ChangePasswordSerializer(serializers.ModelSerializer):
+    new_password = serializers.CharField(
+        write_only=True, required=True, validators=[validate_password])
+    confirm_password2 = serializers.CharField(write_only=True, required=True)
     old_password = serializers.CharField(write_only=True, required=True)
-    new_password = serializers.CharField(write_only=True, required=True)
-    confirm_password = serializers.CharField(write_only=True, required=True)
-    
 
     class Meta:
         model = User
-        fields = ('old_password', 'new_password', 'confirm_password')
+        fields = ('old_password', 'new_password', 'confirm_password2')
 
     def validate(self, attrs):
-        if attrs['new_password'] != attrs['confirm_password']:
+        if attrs['new_password'] != attrs['confirm_password2']:
             raise serializers.ValidationError(
-                {"password": "Password fields didn't match."})
+                {"new_password": "Password fields didn't match."})
 
         return attrs
 
@@ -94,6 +94,11 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
         return value
 
     def update(self, instance, validated_data):
+        user = self.context['request'].user
+
+        if user.pk != instance.pk:
+            raise serializers.ValidationError(
+                {"authorize": "You dont have permission for this user."})
 
         instance.set_password(validated_data['new_password'])
         instance.save()

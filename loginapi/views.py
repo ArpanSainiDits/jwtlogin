@@ -15,7 +15,7 @@ from .serializers import (
 
 from .models import User
 from django.contrib.auth import get_user_model
-# from rest_framework import generics
+from rest_framework import generics
 
 
 # Create your views here.
@@ -72,28 +72,33 @@ class UserLoginView(APIView):
             return Response(response, status=status_code)
 
 
-class changePasswordView(APIView):
-    serializer_class = ChangePasswordSerializer
-    permission_classes = (AllowAny, )
+# class changePasswordView(APIView):
+#     serializer_class = ChangePasswordSerializer
+#     permission_classes = (AllowAny, )
 
-    def patch(self, request):
-        serializer = self.serializer_class(data=request.data)
-        valid = serializer.is_valid(raise_exception=True)
+#     def put(self, request):
+#         serializer = self.serializer_class(data=request.data)
+#         valid = serializer.is_valid(raise_exception=True)
 
-        decode = jwt.decode(serializer.data['access'], options={
-                            "verify_signature": False})
+#         decode = jwt.decode(serializer.data['access'], options={
+#                             "verify_signature": False})
        
-        id = decode.get("user_id")
+#         id = decode.get("user_id")
         
-        print(id)
-        if valid:
-            status_code = status.HTTP_200_OK
+#         print(id)
+#         if valid:
+#             status_code = status.HTTP_200_OK
 
-            response = {  
-                'id' : id,
-            }
+#             response = {  
+#                 'id' : id,
+#             }
 
-            return Response(response, status=status_code)
+#             return Response(response, status=status_code)
 
 
-# 
+class ChangePasswordView(generics.UpdateAPIView):
+
+    queryset = User.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ChangePasswordSerializer
+    permission_classes = (AllowAny,)
