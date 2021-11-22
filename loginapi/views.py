@@ -9,16 +9,13 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from .serializers import (
     UserRegistrationSerializer,
     UserLoginSerializer,
-    UserListSerializer
+    UserListSerializer,
+    ChangePasswordSerializer,
 )
 
 from .models import User
 from django.contrib.auth import get_user_model
-
-
-
-
-
+# from rest_framework import generics
 
 
 # Create your views here.
@@ -45,8 +42,8 @@ class UserRegistrationView(APIView):
             }
 
             return Response(response, status=status_code)
-        
-    
+
+
 # login view
 
 class UserLoginView(APIView):
@@ -68,41 +65,35 @@ class UserLoginView(APIView):
                 'refresh': serializer.data['refresh'],
                 'authenticatedUser': {
                     'email': serializer.data['email'],
-                    
+
                 }
             }
 
             return Response(response, status=status_code)
 
 
-
 class changePasswordView(APIView):
-    serializer_class = UserLoginSerializer
+    serializer_class = ChangePasswordSerializer
     permission_classes = (AllowAny, )
 
-    def post(self, request):
+    def patch(self, request):
         serializer = self.serializer_class(data=request.data)
         valid = serializer.is_valid(raise_exception=True)
-        
+
         decode = jwt.decode(serializer.data['access'], options={
                             "verify_signature": False})
-        print(">>>>>>>>>>>>>>>>>", decode)
-        id = decode.user_id
+       
+        id = decode.get("user_id")
+        
+        print(id)
         if valid:
             status_code = status.HTTP_200_OK
 
-            response = {
-                # 'success': True,
-                # 'statusCode': status_code,
-                # 'message': 'User logged in successfully',
-                # 'access': serializer.data['access'],
-                # 'refresh': serializer.data['refresh'],
-                'Decode': decode,
+            response = {  
                 'id' : id,
-                # 'authenticatedUser': {
-                #     'email': serializer.data['email'],
-
-                # }
             }
 
             return Response(response, status=status_code)
+
+
+# 
