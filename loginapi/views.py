@@ -16,6 +16,7 @@ from .serializers import (
 from .models import User
 from django.contrib.auth import get_user_model
 from rest_framework import generics
+from django.contrib.auth.base_user import AbstractBaseUser
 
 
 # Create your views here.
@@ -142,8 +143,8 @@ class ChangePasswordView(generics.UpdateAPIView):
         serializer = self.get_serializer(data=request.data)
 
         if serializer.is_valid():
-            
-            self.object.set_password(serializer.data.get("new_password"))
+           
+            self.object.set_password(serializer.data.get("new_password".encode("utf-8")))
             self.object.save()
             response = {
                 'status': 'success',
