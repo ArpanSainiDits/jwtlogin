@@ -17,6 +17,7 @@ from .models import User
 from django.contrib.auth import get_user_model
 from rest_framework import generics
 from django.contrib.auth.base_user import AbstractBaseUser
+import hashlib
 
 
 # Create your views here.
@@ -83,14 +84,14 @@ class UserLoginView(APIView):
 
 #         decode = jwt.decode(serializer.data['access'], options={
 #                             "verify_signature": False})
-       
+
 #         id = decode.get("user_id")
-        
+
 #         print(id)
 #         if valid:
 #             status_code = status.HTTP_200_OK
 
-#             response = {  
+#             response = {
 #                 'id' : id,
 #             }
 
@@ -102,10 +103,10 @@ class UserLoginView(APIView):
 #     queryset = User.objects.all()
 #     permission_classes = (IsAuthenticated,)
 #     serializer_class = ChangePasswordSerializer
-    
+
 
 # class ChangePasswordView(APIView):
-    
+
 
 #     permission_classes = (IsAuthenticated,)
 #     serializer_class = ChangePasswordSerializer
@@ -130,29 +131,32 @@ class ChangePasswordView(generics.UpdateAPIView):
     """
     An endpoint for changing password.
     """
+    queryset = User.objects.all
     serializer_class = ChangePasswordSerializer
-    model = User
+    # model = User
     permission_classes = (IsAuthenticated,)
 
     def get_object(self, queryset=None):
         obj = self.request.user
         return obj
 
-    def update(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        serializer = self.get_serializer(data=request.data)
+    # def update(self, request, *args, **kwargs):
+    # #     self.object = self.get_object()
+    #     serializer = self.get_serializer(data=request.data)
 
-        if serializer.is_valid():
-           
-            self.object.set_password(serializer.data.get("new_password".encode("utf-8")))
-            self.object.save()
-            response = {
-                'status': 'success',
-                'code': status.HTTP_200_OK,
-                'message': 'Password updated successfully',
-                'data': []
-            }
+    #     if serializer.is_valid():
 
-            return Response(response)
+    #         # self.object.set_password(serializer.data.get("new_password"))
+    #         # self.object.set_password(serializer.data.get(hashlib.md5(b"new_password")))
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #         self.object.save()
+    #         response = {
+    #             'status': 'success',
+    #             'code': status.HTTP_200_OK,
+    #             'message': 'Password updated successfully',
+    #             'data': []
+    #         }
+
+    #         return Response(response)
+
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
